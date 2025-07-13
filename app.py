@@ -6,6 +6,7 @@ import cartopy.feature as cfeature
 import pandas as pd
 from datetime import datetime
 import io
+import cartopy.io.shapereader as shpreader
 
 st.set_page_config(page_title="Prakiraan Cuaca Kalimantan", layout="wide")
 st.title("🌧️ GFS Viewer Wilayah Kalimantan (Realtime via NOMADS)")
@@ -73,7 +74,7 @@ if st.sidebar.button("🔎 Tampilkan Visualisasi"):
         st.warning("Parameter tidak dikenali.")
         st.stop()
 
-    # Wilayah Kalimantan diperluas
+    # Fokus wilayah Barito Selatan
     lat_min, lat_max = -3.5, -1.0
     lon_min, lon_max = 113.5, 116
     var = var.sel(lat=slice(lat_min, lat_max), lon=slice(lon_min, lon_max))
@@ -105,21 +106,31 @@ if st.sidebar.button("🔎 Tampilkan Visualisasi"):
             ax.quiver(var.lon[::1], var.lat[::1], u.values[::1, ::1], v.values[::1, ::1],
                       transform=ccrs.PlateCarree(), scale=500, width=0.002, color='black')
 
-    # Tambahan fitur peta
+    # Tambahan peta administratif
     ax.coastlines(resolution='10m', linewidth=0.8)
     ax.add_feature(cfeature.BORDERS, linestyle=':')
     ax.add_feature(cfeature.LAND, facecolor='lightgray')
     ax.add_feature(cfeature.STATES, linestyle=':', linewidth=0.5)
 
-    # Titik Sanggu
-    lon_Sanggu, lat_Sanggu = 114.8974, -1.6691  # Lokasi Sanggu
+    # 🌍 Tambahkan batas kecamatan dari shapefile
+    shp_path = "/mnt/data/INDONESIA_KEC.shp"
+    reader = shpreader.Reader(shp_path)
+    for record in reader.records():
+        nama_kab = record.attributes.get("KAB_KOTA", "").upper()
+        if "BARITO SELATAN" in nama_kab:
+            geom = record.geometry
+            ax.add_geometries([geom], crs=ccrs.PlateCarree(),
+                              facecolor='none', edgecolor='black', linewidth=0.6)
+
+    # 📍 Titik Sanggu
+    lon_Sanggu, lat_Sanggu = 114.8974, -1.6691
     ax.plot(lon_Sanggu, lat_Sanggu, marker='o', color='red', markersize=6, transform=ccrs.PlateCarree())
-    ax.text(lon_Sanggu + 0.1, lat_Sanggu + 0.1, "Sanggu", fontsize=9, fontweight='bold', color='black',
+    ax.text(lon_Sanggu + 0.05, lat_Sanggu + 0.05, "Sanggu", fontsize=9, fontweight='bold', color='black',
             transform=ccrs.PlateCarree(), bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.2'))
 
     st.pyplot(fig)
 
-    # Tombol unduh
+    # Download
     buf = io.BytesIO()
     fig.savefig(buf, format="png", bbox_inches="tight")
-    st.download_button("📥 Download Gambar", buf.getvalue(), file_name="gfs_kalimantan.png", mime="image/png")
+    st.download_button("📥 Download Gambar", buf.getvalue(), file_name="gfs_kalimantan_kecamatan.png", mime="image/png")
