@@ -124,7 +124,7 @@ if st.sidebar.button("🔎 Tampilkan Visualisasi"):
             transform=ccrs.PlateCarree(), bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.2'))
 
     # Titik Observasi Tambahan
-    lon_obs, lat_obs = 114.907933, -1.682540
+    lon_obs, lat_obs = 114.894317,  -1.666593
     ax.plot(lon_obs, lat_obs, marker='^', color='blue', markersize=6, transform=ccrs.PlateCarree())
     ax.text(lon_obs + 0.2, lat_obs - 0.2, "Obs Point", fontsize=9, fontweight='bold', color='blue',
             transform=ccrs.PlateCarree(), bbox=dict(facecolor='white', edgecolor='blue', boxstyle='round,pad=0.2'))
