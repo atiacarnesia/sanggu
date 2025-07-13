@@ -94,7 +94,7 @@ if st.sidebar.button("🔎 Tampilkan Visualisasi"):
 
     valid_time = ds.time[forecast_hour].values
     valid_dt = pd.to_datetime(str(valid_time))
-    valid_str = valid_dt.strftime("%HUTC %a %d %b %Y")
+    
     tstr = f"t+{forecast_hour:03d}"
 
     # Gunakan satu baris judul bersih (tidak terduplikasi)
