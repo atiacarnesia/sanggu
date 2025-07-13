@@ -12,7 +12,7 @@ st.set_page_config(page_title="Prakiraan Cuaca Barito Selatan", layout="wide")
 st.title("🌧️ GFS Viewer Wilayah Barito Selatan (Realtime via NOMADS)")
 st.header("Web Hasil Pembelajaran Pengelolaan Informasi Meteorologi")
 st.markdown("**Atia Carnesia**  \n*UAS PIM M8TB 2025*")
-st.caption("Prakiraan cuaca wilayah Barito Selatan berdasarkan data GFS 0.25° via NOMADS NOAA.")
+st.spinner("Prakiraan cuaca wilayah Barito Selatan berdasarkan data GFS 0.25° via NOMADS NOAA.")
 
 @st.cache_data
 def load_dataset(run_date, run_hour):
