@@ -7,12 +7,11 @@ import pandas as pd
 from datetime import datetime
 import io
 
-st.set_page_config(page_title="Prakiraan Cuaca Barito Selatan", layout="wide")
+st.set_page_config(page_title="Prakiraan Cuaca Kalimantan", layout="wide")
 
-st.title("🌧️ GFS Viewer Wilayah Barito Selatan (Realtime via NOMADS)")
+st.title("🌧️ GFS Viewer Wilayah Kalimantan (Realtime via NOMADS)")
 st.header("Web Hasil Pembelajaran Pengelolaan Informasi Meteorologi")
 st.markdown("**Atia Carnesia**  \n*UAS PIM M8TB 2025*")
-st.spinner("Prakiraan cuaca wilayah Barito Selatan berdasarkan data GFS 0.25° via NOMADS NOAA.")
 
 @st.cache_data
 def load_dataset(run_date, run_hour):
@@ -78,9 +77,9 @@ if st.sidebar.button("🔎 Tampilkan Visualisasi"):
         st.warning("Parameter tidak dikenali.")
         st.stop()
 
-    # Wilayah Barito Selatan
-    lat_min, lat_max = -2.5, -1.0
-    lon_min, lon_max = 114.0, 115.5
+    # Wilayah Kalimantan diperluas
+    lat_min, lat_max = -5, 5
+    lon_min, lon_max = 108, 120
     var = var.sel(lat=slice(lat_min, lat_max), lon=slice(lon_min, lon_max))
 
     if is_vector:
@@ -88,7 +87,7 @@ if st.sidebar.button("🔎 Tampilkan Visualisasi"):
         v = v.sel(lat=slice(lat_min, lat_max), lon=slice(lon_min, lon_max))
 
     # Plot
-    fig = plt.figure(figsize=(8, 6))
+    fig = plt.figure(figsize=(10, 7))
     ax = plt.axes(projection=ccrs.PlateCarree())
     ax.set_extent([lon_min, lon_max, lat_min, lat_max], crs=ccrs.PlateCarree())
 
@@ -97,7 +96,6 @@ if st.sidebar.button("🔎 Tampilkan Visualisasi"):
     valid_str = valid_dt.strftime("%HUTC %a %d %b %Y")
     tstr = f"t+{forecast_hour:03d}"
 
-    # Gunakan satu baris judul bersih (tidak terduplikasi)
     ax.set_title(f"{label} • Valid: {valid_str} • GFS {tstr}",
                  fontsize=11, fontweight="bold", loc="center", pad=15)
 
@@ -119,15 +117,21 @@ if st.sidebar.button("🔎 Tampilkan Visualisasi"):
     ax.add_feature(cfeature.BORDERS, linestyle=':')
     ax.add_feature(cfeature.LAND, facecolor='lightgray')
 
-    # Tambahkan Buntok
-    lon_kota, lat_kota = 114.845, -1.735
-    ax.plot(lon_kota, lat_kota, marker='o', color='red', markersize=6, transform=ccrs.PlateCarree())
-    ax.text(lon_kota + 0.1, lat_kota + 0.1, "Buntok", fontsize=9, fontweight='bold', color='black',
+    # Titik Buntok
+    lon_buntok, lat_buntok = 114.845, -1.735
+    ax.plot(lon_buntok, lat_buntok, marker='o', color='red', markersize=6, transform=ccrs.PlateCarree())
+    ax.text(lon_buntok + 0.2, lat_buntok + 0.1, "Buntok", fontsize=9, fontweight='bold', color='black',
             transform=ccrs.PlateCarree(), bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.2'))
+
+    # Titik Observasi Tambahan
+    lon_obs, lat_obs = 114.907933, -1.682540
+    ax.plot(lon_obs, lat_obs, marker='^', color='blue', markersize=6, transform=ccrs.PlateCarree())
+    ax.text(lon_obs + 0.2, lat_obs - 0.2, "Obs Point", fontsize=9, fontweight='bold', color='blue',
+            transform=ccrs.PlateCarree(), bbox=dict(facecolor='white', edgecolor='blue', boxstyle='round,pad=0.2'))
 
     st.pyplot(fig)
 
     # Download tombol
     buf = io.BytesIO()
     fig.savefig(buf, format="png", bbox_inches="tight")
-    st.download_button("📥 Download Gambar", buf.getvalue(), file_name="gfs_barito_selatan.png", mime="image/png")
+    st.download_button("📥 Download Gambar", buf.getvalue(), file_name="gfs_kalimantan.png", mime="image/png")
