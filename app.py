@@ -120,7 +120,7 @@ if st.sidebar.button("🔎 Tampilkan Visualisasi"):
     # Titik Buntok
     lon_buntok, lat_buntok = 114.845, -1.735
     ax.plot(lon_buntok, lat_buntok, marker='o', color='red', markersize=6, transform=ccrs.PlateCarree())
-    ax.text(lon_buntok + 0.2, lat_buntok + 0.1, "Sanggu Barito Selatan", fontsize=9, fontweight='bold', color='black',
+    ax.text(lon_buntok + 0.2, lat_buntok + 0.1, "Sanggu_Barito_Selatan", fontsize=9, fontweight='bold', color='black',
             transform=ccrs.PlateCarree(), bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.2'))
 
     # Titik Observasi Tambahan
