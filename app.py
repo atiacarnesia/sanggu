@@ -117,7 +117,7 @@ if st.sidebar.button("🔎 Tampilkan Visualisasi"):
     ax.add_feature(cfeature.BORDERS, linestyle=':')
     ax.add_feature(cfeature.LAND, facecolor='lightgray')
 
-    # Titik Buntok
+    # Titik Sanggu
     lon_Sanggu, lat_Sanggu = 114.897396,  -1.669177
     ax.plot(lon_Sanggu, lat_Sanggu, marker='o', color='red', markersize=6, transform=ccrs.PlateCarree())
     ax.text(lon_Sanggu + 0.2, lat_Sanggu + 0.1, "Sanggu_BaritoSelatan", fontsize=9, fontweight='bold', color='black',
