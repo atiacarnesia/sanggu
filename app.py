@@ -98,8 +98,9 @@ if st.sidebar.button("🔎 Tampilkan Visualisasi"):
     valid_str = valid_dt.strftime("%HUTC %a %d %b %Y")
     tstr = f"t+{forecast_hour:03d}"
 
-    ax.set_title(f"{label} Valid {valid_str}", loc="left", fontsize=10, fontweight="bold")
-    ax.set_title(f"GFS {tstr}", loc="right", fontsize=10, fontweight="bold")
+    # Satu judul tanpa duplikasi
+    ax.set_title(f"{label}\nValid {valid_str}  |  GFS {tstr}",
+                 fontsize=11, fontweight="bold", loc='center')
 
     if is_contour:
         cs = ax.contour(var.lon, var.lat, var.values, levels=15, colors='black', linewidths=0.8, transform=ccrs.PlateCarree())
@@ -120,8 +121,8 @@ if st.sidebar.button("🔎 Tampilkan Visualisasi"):
     ax.add_feature(cfeature.BORDERS, linestyle=':')
     ax.add_feature(cfeature.LAND, facecolor='lightgray')
 
-    # Tambahkan lokasi Barito Selatan
-    lon_kota, lat_kota = 114.845, -1.735  # Buntok, Barito Selatan
+    # Lokasi Barito Selatan
+    lon_kota, lat_kota = 114.845, -1.735
     ax.plot(lon_kota, lat_kota, marker='o', color='red', markersize=6, transform=ccrs.PlateCarree())
     ax.text(lon_kota + 0.1, lat_kota + 0.1, "Buntok", fontsize=9, fontweight='bold', color='black',
             transform=ccrs.PlateCarree(), bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.2'))
