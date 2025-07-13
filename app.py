@@ -1,4 +1,3 @@
-[media pointer="file-service://file-V9Td1Gdys31cj4ub27JUKt"]
 import streamlit as st
 import xarray as xr
 import matplotlib.pyplot as plt
