@@ -118,9 +118,9 @@ if st.sidebar.button("🔎 Tampilkan Visualisasi"):
     ax.add_feature(cfeature.LAND, facecolor='lightgray')
 
     # Titik Buntok
-    lon_buntok, lat_buntok = 114.897396,  -1.669177
-    ax.plot(lon_buntok, lat_buntok, marker='o', color='red', markersize=6, transform=ccrs.PlateCarree())
-    ax.text(lon_buntok + 0.2, lat_buntok + 0.1, "Sanggu_BaritoSelatan", fontsize=9, fontweight='bold', color='black',
+    lon_Sanggu, lat_Sanggu = 114.897396,  -1.669177
+    ax.plot(lon_Sanggu, lat_Sanggu, marker='o', color='red', markersize=6, transform=ccrs.PlateCarree())
+    ax.text(lon_Sanggu + 0.2, lat_Sanggu + 0.1, "Sanggu_BaritoSelatan", fontsize=9, fontweight='bold', color='black',
             transform=ccrs.PlateCarree(), bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.2'))
 
     # Titik Observasi Tambahan
