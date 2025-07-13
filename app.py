@@ -6,24 +6,33 @@ import cartopy.feature as cfeature
 import pandas as pd
 from datetime import datetime
 import io
+import requests
 
-# Konfigurasi halaman
 st.set_page_config(page_title="Prakiraan Cuaca Barito Selatan", layout="wide")
 
-# Judul dan informasi
 st.title("🌧️ GFS Viewer Wilayah Barito Selatan (Realtime via NOMADS)")
 st.header("Web Hasil Pembelajaran Pengelolaan Informasi Meteorologi")
 st.markdown("**Atia Carnesia**  \n*UAS PIM M8TB 2025*")
 
-# Fungsi untuk memuat dataset GFS dari NOMADS
+# Cek URL apakah tersedia
+def check_url_exists(url):
+    try:
+        response = requests.head(url)
+        return response.status_code == 200
+    except:
+        return False
+
 @st.cache_data
 def load_dataset(run_date, run_hour):
     base_url = f"https://nomads.ncep.noaa.gov/dods/gfs_0p25_1hr/gfs{run_date}/gfs_0p25_1hr_{run_hour}z"
+    if not check_url_exists(base_url):
+        raise Exception(f"Data GFS belum tersedia untuk waktu {run_date} {run_hour} UTC")
     ds = xr.open_dataset(base_url)
     return ds
 
-# Sidebar untuk input pengguna
+# Sidebar input
 st.sidebar.title("⚙️ Pengaturan")
+
 today = datetime.utcnow()
 run_date = st.sidebar.date_input("Tanggal Run GFS (UTC)", today.date())
 run_hour = st.sidebar.selectbox("Jam Run GFS (UTC)", ["00", "06", "12", "18"])
@@ -35,7 +44,7 @@ parameter = st.sidebar.selectbox("Parameter", [
     "Tekanan Permukaan Laut (prmslmsl)"
 ])
 
-# Tombol proses
+# Tombol tampilkan
 if st.sidebar.button("🔎 Tampilkan Visualisasi"):
     try:
         ds = load_dataset(run_date.strftime("%Y%m%d"), run_hour)
@@ -50,7 +59,7 @@ if st.sidebar.button("🔎 Tampilkan Visualisasi"):
     is_contour = False
     is_vector = False
 
-    # Pemilihan parameter
+    # Konfigurasi parameter
     if "pratesfc" in parameter:
         var = ds["pratesfc"][forecast_hour, :, :] * 3600
         label = "Curah Hujan (mm/jam)"
@@ -64,7 +73,7 @@ if st.sidebar.button("🔎 Tampilkan Visualisasi"):
     elif "ugrd10m" in parameter:
         u = ds["ugrd10m"][forecast_hour, :, :]
         v = ds["vgrd10m"][forecast_hour, :, :]
-        speed = (u**2 + v**2)**0.5 * 1.94384  # m/s ke knot
+        speed = (u**2 + v**2)**0.5 * 1.94384
         var = speed
         label = "Kecepatan Angin (knot)"
         cmap = plt.cm.get_cmap("RdYlGn_r", 10)
@@ -89,21 +98,21 @@ if st.sidebar.button("🔎 Tampilkan Visualisasi"):
         u = u.sel(lat=slice(lat_min, lat_max), lon=slice(lon_min, lon_max))
         v = v.sel(lat=slice(lat_min, lat_max), lon=slice(lon_min, lon_max))
 
-    # Waktu valid dan lead time
+    # Buat plot
+    fig = plt.figure(figsize=(8, 6))
+    ax = plt.axes(projection=ccrs.PlateCarree())
+    ax.set_extent([lon_min, lon_max, lat_min, lat_max], crs=ccrs.PlateCarree())
+
     valid_time = ds.time[forecast_hour].values
     valid_dt = pd.to_datetime(str(valid_time))
     valid_str = valid_dt.strftime("%HUTC %a %d %b %Y")
-    tstr = f"t+{forecast_hour:03d}"
+    tstr = f"GFS t+{forecast_hour:03d}"
 
-    # Plot peta
-    fig = plt.figure(figsize=(8, 6))
-    ax = plt.axes(projection=ccrs.PlateCarree())
-    ax.set_extent([lon_min, lon_max, lat_min, lat_max])
+    # Judul diperbaiki agar tidak duplikat
+    ax.set_title(f"{label}", loc="left", fontsize=10, fontweight="bold")
+    ax.set_title(f"{tstr} • Valid {valid_str}", loc="right", fontsize=10, fontweight="bold")
 
-    # Perbaikan Judul
-    ax.set_title(f"{label}\nValid {valid_str}  |  GFS {tstr}", fontsize=11, fontweight="bold")
-
-    # Visualisasi sesuai parameter
+    # Plot parameter
     if is_contour:
         cs = ax.contour(var.lon, var.lat, var.values, levels=15, colors='black', linewidths=0.8, transform=ccrs.PlateCarree())
         ax.clabel(cs, fmt="%d", colors='black', fontsize=8)
@@ -118,21 +127,21 @@ if st.sidebar.button("🔎 Tampilkan Visualisasi"):
                       u.values[::1, ::1], v.values[::1, ::1],
                       transform=ccrs.PlateCarree(), scale=500, width=0.002, color='black')
 
-    # Tambahan fitur geospasial
+    # Fitur peta
     ax.coastlines(resolution='10m', linewidth=0.8)
     ax.add_feature(cfeature.BORDERS, linestyle=':')
     ax.add_feature(cfeature.LAND, facecolor='lightgray')
 
-    # Lokasi Buntok - Barito Selatan
+    # Lokasi Barito Selatan (Buntok)
     lon_kota, lat_kota = 114.845, -1.735
     ax.plot(lon_kota, lat_kota, marker='o', color='red', markersize=6, transform=ccrs.PlateCarree())
     ax.text(lon_kota + 0.1, lat_kota + 0.1, "Buntok", fontsize=9, fontweight='bold', color='black',
             transform=ccrs.PlateCarree(), bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.2'))
 
-    # Tampilkan ke Streamlit
+    # Tampilkan grafik
     st.pyplot(fig)
 
-    # Download button
+    # Tombol download gambar
     buf = io.BytesIO()
     fig.savefig(buf, format="png")
     st.download_button("📥 Download Gambar", buf.getvalue(), file_name="gfs_barito_selatan.png", mime="image/png")
