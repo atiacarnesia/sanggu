@@ -71,7 +71,7 @@ if st.sidebar.button("🔎 Tampilkan Visualisasi"):
         var = ds["prmslmsl"][forecast_hour, :, :] / 100
         label = "Tekanan Permukaan Laut (hPa)"
         cmap = "cool"
-        vmin, vmax = 1000, 1020
+        vmin, vmax = 500, 1520
         is_contour = True
     else:
         st.warning("Parameter tidak dikenali.")
