@@ -79,7 +79,7 @@ if st.sidebar.button("🔎 Tampilkan Visualisasi"):
 
     # Wilayah Kalimantan diperluas
     lat_min, lat_max = -10, 10
-    lon_min, lon_max = 108, 120
+    lon_min, lon_max = 103, 125
     var = var.sel(lat=slice(lat_min, lat_max), lon=slice(lon_min, lon_max))
 
     if is_vector:
